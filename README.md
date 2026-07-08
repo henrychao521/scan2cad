@@ -33,7 +33,23 @@
 | `scripts/emit_cadquery.py` | CadQuery B-Rep → STEP |
 | `scripts/verify_scene.py` + `declash_scene.py` | L1/L3 驗證 + 自動修正 |
 | `scripts/emit_drillpress_step.py` | 檢索件：精密鑽床 B-Rep |
+| `scripts/emit_lasercut.py` | **R4 scan2lasercut**：家具 OBB → 雷切縮尺盒板件 DXF（見下） |
 | `docs/` | 開發全記錄公開站（GitHub Pages） |
+
+## R4：scan2lasercut — 掃描物 → 雷切板件
+
+把掃描重繪的家具方塊拆成**可雷射切割的縮尺模型板件**（開頂指接盒 5 片，
+垂直角指接榫＋底板槽榫，共用分段函數保證公母對合），輸出 R12 DXF＋排版預覽：
+
+```bash
+python3 scripts/emit_lasercut.py work/scene_v3.json --index 4 --scale 10 --t 3
+# 櫃 1.11×1.00×0.86m → 1:10 盒 111×100×86mm，5 片，板材 352×204mm
+```
+
+概念出自 2026-07-07 教師研習「從 3D 列印到雷射切割」（立體想法拆成一片一片板件，
+課程站：[laser-cut-course](https://henrychao521.github.io/laser-cut-course/)）——
+這支腳本把該流程自動化：**掃教室 → 挑家具 → 出切割圖**，格狀鉸鏈等彎折件可再接
+[lattice-hinge-designer](https://henrychao521.github.io/lattice-hinge-designer/)。
 
 ## 依賴
 
