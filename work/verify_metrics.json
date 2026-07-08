@@ -1,0 +1,14 @@
+{
+ "room_dims_m": [
+  8.82,
+  10.48,
+  1.98
+ ],
+ "room_area_m2": 92.5,
+ "n_objects_total": 21,
+ "n_arch": 8,
+ "n_discovered": 6,
+ "n_vlm": 5,
+ "occupied_footprint_coverage": 0.413,
+ "note": "覆蓋率=站立物點雲佔據格落在物件框內比例; 未覆蓋=牆邊/散落未建模的雜項"
+}

@@ -1,0 +1,15 @@
+# 依賴 / 大檔 / 可重生中間產物
+tools/
+work/lt4_raw.ply
+work/turn/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 本機工作目錄(含未去識別化的原始環景照, 不公開)
+page/
+
+# 含人像的原始環景照與其放大段(未去識別化, 絕不入版控)
+work/real_pano.png
+work/real_splat.png
+work/pano_seg*.png

@@ -1,0 +1,209 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>scan2cad 開發全記錄 — 3DGS 掃描 → 自動 CAD 重繪</title>
+<style>
+:root{--bg:#14161b;--fg:#e7e9ee;--mut:#9aa0ad;--o:#ff8000;--bd:#2a2f3a;--card:#1b1e25;--grn:#37c871;--org:#ff8c1a;--blu:#5a8cff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);line-height:1.85;font-family:-apple-system,'PingFang TC','Noto Sans TC',sans-serif}
+.layout{display:flex;max-width:1200px;margin:0 auto}
+nav{position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;width:238px;flex:0 0 238px;padding:20px 14px;border-right:1px solid var(--bd);font-size:13px}
+nav .lead{font-size:17px;font-weight:800;margin-bottom:2px}nav .lead .o{color:var(--o)}
+nav .sub{font-size:11.5px;color:var(--mut);margin-bottom:12px}
+nav a{display:block;color:#c3c7d0;padding:4px 8px;border-radius:6px;margin:1px 0}
+nav a:hover{background:#23262f;text-decoration:none}nav a.h{color:var(--o);font-weight:700;margin-top:8px}
+nav .dl{display:block;background:#241a10;color:var(--o);border:1px solid #5a4a1f;border-radius:7px;padding:6px 8px;margin:8px 0 2px;text-align:center;font-weight:700}
+main{flex:1;min-width:0;padding:28px 32px 90px;max-width:860px}
+a{color:var(--o);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:26px;margin:0 0 4px}h1 .o{color:var(--o)}
+.tag{color:var(--mut);font-size:14px;margin-bottom:18px}
+h2{font-size:20px;margin:34px 0 10px;padding-top:16px;border-top:1px solid #21242c}h2 .n{color:var(--o);font-weight:800;margin-right:8px}
+h3{font-size:15.5px;margin:18px 0 6px;color:#f0f2f6}
+p{margin:8px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:13px 16px;margin:12px 0}
+.q{background:#161d2e;border-left:3px solid var(--blu);border-radius:0 9px 9px 0;padding:10px 15px;margin:14px 0;font-size:14.5px}
+.q .who{font-size:11.5px;color:var(--blu);font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+.key{background:#16271c;border:1px solid #2c5a3f;border-radius:11px;padding:12px 15px;margin:12px 0}.key b{color:#6ed09a}
+.warn{background:#2a2413;border:1px solid #5a4a1f;border-radius:11px;padding:12px 15px;margin:12px 0}.warn b{color:#ffc24b}
+.hero{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+.hero .b{flex:1;min-width:96px;background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:10px 12px;text-align:center}
+.hero .n{font-size:22px;font-weight:800;color:var(--o)}.hero .c{font-size:11.5px;color:var(--mut)}
+figure{margin:16px 0;background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:10px 10px 4px}
+figure img{width:100%;border-radius:7px;display:block;background:#fff}
+figcaption{font-size:12.5px;color:var(--mut);padding:8px 6px 6px;line-height:1.6}figcaption b{color:#c9cdd6}figcaption .o{color:var(--o)}
+.two{display:flex;gap:12px;flex-wrap:wrap}.two figure{flex:1;min-width:250px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th,td{border:1px solid var(--bd);padding:6px 9px;text-align:left;vertical-align:top}th{background:#20242c;color:#c9cdd6}
+code{background:#20242c;padding:1px 6px;border-radius:5px;color:#ffd9a8;font-size:.9em}
+pre{background:#0f1116;border:1px solid var(--bd);border-radius:9px;padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.55}
+pre code{background:none;color:#cbd3df;padding:0}
+ul{padding-left:20px}li{margin:4px 0}.mut{color:var(--mut)}.o{color:var(--o)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:14px 0}
+.gal a{display:block;border:1px solid var(--bd);border-radius:9px;overflow:hidden;background:var(--card)}
+.gal img{width:100%;display:block;background:#fff}.gal .cap{font-size:11px;color:var(--mut);padding:5px 7px}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid #21242c;color:var(--mut);font-size:12.5px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 9px;border-radius:20px;border:1px solid;margin-right:5px}
+.pg{color:#6ed09a;border-color:#2c5a3f;background:#16271c}
+@media(max-width:820px){nav{display:none}main{padding:20px 16px 70px}}
+</style></head><body><div class="layout">
+<nav>
+  <div class="lead"><span class="o">scan2cad</span> 開發全記錄</div>
+  <div class="sub">3DGS 掃描 → 自動 CAD 重繪</div>
+  <a class="dl" href="scan2cad.html">📐 技術總覽頁</a>
+  <a class="h" href="#s1">1　專案緣起</a>
+  <a href="#s2">2　可行性分析</a>
+  <a href="#s3">3　資料查找歷程</a>
+  <a href="#s4">4　建置：四階段管線</a>
+  <a href="#s5">5　精修到細緻（R1–R6）</a>
+  <a href="#s6">6　檢索升級</a>
+  <a href="#s7">7　對話逐字稿</a>
+  <a href="#s8">8　圖片集</a>
+  <a href="#s9">9　成果與檔案</a>
+  <div style="margin-top:14px"><a href="https://github.com/henrychao521/scan2cad" style="font-size:12px">▸ GitHub 原始碼</a></div>
+</nav>
+<main>
+<h1>scan2cad：<span class="o">3DGS 掃描 → 自動 CAD 重繪</span> 開發全記錄</h1>
+<div class="tag">把教室／工坊的 3DGS 高斯潑濺掃描，自動分析出物件與空間尺寸，再用三套建模軟體自動重繪成參數化、可製造、通過裝配驗證的模型。本頁完整記錄從發想、可行性、資料查找、建置、精修到檢索升級的全過程與對話。</div>
+
+<div class="hero">
+<div class="b"><div class="n">8.8×10.5</div><div class="c">室內 (m)</div></div>
+<div class="b"><div class="n">21</div><div class="c">重繪物件</div></div>
+<div class="b"><div class="n">3</div><div class="c">建模引擎</div></div>
+<div class="b"><div class="n">L1·L3 ✓</div><div class="c">通過驗證</div></div>
+<div class="b"><div class="n">11s</div><div class="c">全流程可重現</div></div>
+</div>
+<div class="card"><b>兩套系統的橋樑：</b>這個專案把 <b>x5-roomtour</b>（把真實空間掃成 3DGS）和 <b>MCL39</b>（文字→CAD＋L1–L5 驗證）接起來——一個把真實世界數位化，一個從無到有造零件，scan2cad 讓前者的產出自動變成後者能編輯、驗證、製造的 CAD。</div>
+
+<!-- ========== 1 緣起 ========== -->
+<h2 id="s1"><span class="n">1</span>專案緣起</h2>
+<p>整個專案始於一個問題：</p>
+<div class="q"><div class="who">使用者</div>我們目前有教室的 3DGS 以及 3D 建模軟體，是否有辦法分析 3DGS 中的物件、空間尺寸，然後再自動透過 3D 建模軟體將空間自動重繪呢？</div>
+<p>這在學界叫 <b>scan-to-CAD / scan-to-BIM</b>。核心觀念先講清楚：<b>3DGS 的高斯球是為了「照片級擬真」，不是拿來量尺寸的</b>；真正能量測的是它底下的<b>點雲＋公制尺度</b>。而這兩樣，專案一開始就已經有了。</p>
+
+<!-- ========== 2 可行性 ========== -->
+<h2 id="s2"><span class="n">2</span>可行性分析：已完成約 7 成</h2>
+<p>盤點後發現，「分析物件與尺寸」這一段其實大半已經做好了——既有的 x5-roomtour 工具鏈裡已經有這些：</p>
+<table>
+<tr><th>能力</th><th>既有工具</th><th>產出</th></tr>
+<tr><td>3DGS → 公制尺度</td><td><code>measure_space.py</code>（T8 燈管 1.22m 標定）＋<code>align_3dgs_to_lidar.py</code></td><td>公尺尺度 k</td></tr>
+<tr><td>空間／物件分析</td><td><code>build_arch_plan.py</code></td><td><b>arch_elements.json（已存在）</b></td></tr>
+<tr><td>碰撞殼</td><td><code>build_collision_mesh.py</code></td><td>alpha/Poisson mesh</td></tr>
+</table>
+<p>缺的是把 <code>arch_elements.json</code>（2D 公制平面）→ 3D 參數化 → 吐出建模軟體檔案的「橋」，加上高度維度與驗證回環。這就是 scan2cad 補上的部分。</p>
+<div class="key"><b>誠實的能與不能（一開始就講明）：</b>可靠的是「房間外殼＋家具/機台的有尺寸方塊模型」；做不出來的是特定機台的精密曲面/機構——那要用<b>檢索</b>（擺入已建好的精密件），而非重建。這條界線貫穿整個專案。</div>
+
+<!-- ========== 3 資料查找 ========== -->
+<h2 id="s3"><span class="n">3</span>資料查找歷程（關鍵技術決定）</h2>
+<p>動手前的調查與踩坑，決定了後面能不能做對。以下是實際的查找與判斷：</p>
+
+<h3>① 定位素材 + 解碼壓縮 splat</h3>
+<p>工坊的 3DGS 存成 <b>壓縮 splat PLY</b>（<code>lt4_defog.compressed.ply</code>，PlayCanvas <code>element chunk</code> 量化格式），簡易 PLY 解析器讀不了。用 <code>@playcanvas/splat-transform</code> 解碼成 raw 點雲：</p>
+<pre><code>splat-transform lt4_defog.compressed.ply lt4_raw.ply
+# → 1,063,383 gaussians · raw x/y/z/opacity/f_dc/rot/scale</code></pre>
+
+<h3>② 尺度與地板／天花板：不猜，實際量</h3>
+<p>這一步最關鍵，也最容易出錯（尺度差 10 倍是這類系統最怕的）。查證結果：</p>
+<ul>
+<li><b>單位</b>：<code>arch_elements.json</code> 裡的房間/家具/燈全都<b>已經是公尺</b>（build_arch_plan 存檔時已 ×k），不能再乘一次。</li>
+<li><b>尺度</b>：沿用管長標定 <code>k=0.859</code> m/單位（水平方向可靠）。LiDAR 對齊只有人流方位校正、沒存下公制 Sim3。</li>
+<li><b>座標</b>：splat 框是 <b>y-down</b>（地板在 y 較大側）。地板用「XZ 覆蓋最廣的水平帶」找到（y≈+0.535 單位）。</li>
+<li><b>淨高</b>：天花板點稀疏、覆蓋法失效，改取頂端 2% 分位＋對照 build_arch_plan 的燈帶假設（floor−2.3 單位），取較大者 = <b>1.98m</b>。誠實標註：這是「相機掃到的高度」，可能未含真天花板（±10%）。</li>
+</ul>
+<div class="card mut">反驗：把每件家具足跡內的點雲頂面高度量出來，工作檯落在 0.79–1.37m（含檯上設備）——尺度合理，交叉驗證通過。</div>
+
+<h3>③ VLM 分析真實環景</h3>
+<p>把工坊環景照分段放大，用視覺辨識物件型別、以工作檯高 0.85m 為尺度錨測量。這一步補上了頂視點雲<b>結構上抓不到</b>的牆面/天花板物件。</p>
+<figure><img src="img/vlm_seg.png" alt="VLM 分析環景（去識別化）">
+<figcaption><b>VLM 看的環景放大段（人像已去識別化）。</b>左側鑽床/砂輪機列、綠檯面、右側木製抽屜櫃、牆上冷氣、日光燈條。VLM 辨識出：工作檯、木凳、鑽床、空壓機、透明機台外殼、投影布幕、公告欄、抽屜櫃、層架、牆掛冷氣×2、通風管、黑板等。</figcaption></figure>
+
+<!-- ========== 4 建置 ========== -->
+<h2 id="s4"><span class="n">4</span>建置：四階段管線</h2>
+<div class="q"><div class="who">使用者</div>請開工，把已知的進行 cad 建模，同時如果建模後發現其他物件也可以進行建模，則也將新的物件自動進行建模繪製。另外加入流程，嘗試讓 VLM 進行物件分析並測量物件，看看是否能增加可繪製的物件數量。</div>
+<p>照這個要求，管線設計成三段層層增加物件、最後生成 CAD：</p>
+<div class="two">
+<figure><img src="img/discover.png" alt="幾何發掘">
+<figcaption><b>① 已知 ② 幾何發掘。</b>灰=點雲占據，<span style="color:#2ac04a">綠=已知家具</span>（arch，8 件），<span style="color:#ff8c1a">橙=新發掘</span>（分群找出的散落設備/凳，+6 件）。用侵蝕分裂避免中央黏成巨塊。</figcaption></figure>
+<figure><img src="img/verify.png" alt="疊回點雲">
+<figcaption><b>疊回點雲驗證。</b>CAD 物件框疊回點雲俯視占據，覆蓋率 41%——大件貼合，中央零碎雜物未建模（box 模型合理極限）。</figcaption></figure>
+</div>
+<p>③ VLM 再補上 +5 件牆面/天花板物件（頂視幾何拿不到的），並替發掘方塊命名。④ 生成 CAD。<b>物件數從 arch 的 8 件 → 21 件。</b></p>
+
+<!-- ========== 5 精修 ========== -->
+<h2 id="s5"><span class="n">5</span>精修到細緻（R1–R6）</h2>
+<div class="q"><div class="who">使用者</div>你接著做，後續我有五個小時的時間需要去執行其他專案，你的目標就是把它修正到細緻。</div>
+<p>自主精修六項，每項都自我驗證：</p>
+<ul>
+<li><b>R1 細緻家具庫</b>：實心方塊 → 工作檯（檯面＋桌腳＋層板）、櫃（抽屜＋把手）、木凳（座面＋腳）、空壓機（氣瓶＋馬達）等參數化模組。</li>
+<li><b>R2 建築細節</b>：門扇＋門框、窗框＋窗櫺＋玻璃＋窗台、踢腳板、黑板木框。</li>
+<li><b>R3 三引擎＋STEP</b>：補齊 MCL39 三軟體——<b>OpenSCAD（CSG）／Blender（Mesh）／CadQuery（B-Rep→STEP 可製造）</b>。</li>
+<li><b>R4 L1/L3 驗證＋自動修正</b>：接上 MCL39 驗證金字塔，抓到穿插/出界後自動修正。</li>
+<li><b>R5</b>：360° 轉盤、真實 vs 重繪對照。</li>
+<li><b>R6</b>：記錄頁精修、全流程重跑（11 秒可重現）。</li>
+</ul>
+<figure><img src="img/cmp_tri_engine.png" alt="三引擎">
+<figcaption><b>三引擎並排：同一份 <code>scene.json</code> 自動生成。</b>左 OpenSCAD（CSG 細緻家具）、中 Blender（網格）、右 CadQuery（B-Rep 線框，匯出 STEP）。對應 MCL39 的三軟體交叉驗證。</figcaption></figure>
+<div class="two">
+<figure><img src="img/cad_prov.png" alt="來源上色"><figcaption><b>來源上色：<span style="color:#37c871">綠=已知</span>／<span style="color:#ff8c1a">橙=發掘</span>／<span style="color:#5a8cff">藍=VLM</span>。</b>一眼看出各階段貢獻。</figcaption></figure>
+<figure><img src="img/clash.png" alt="L3 裝配檢查"><figcaption><b>L3 裝配檢查（修正後）。</b>綠=OK。初驗抓到 2 穿插＋1 出界，自動內縮/縮小/移除後 0 穿插 0 出界 ✓。</figcaption></figure>
+</div>
+<figure><img src="img/turntable.gif" alt="轉盤">
+<figcaption><b>360° 轉盤。</b>各角度一致——窗框、投影布幕、機台、桌腳都對得上。</figcaption></figure>
+
+<!-- ========== 6 檢索 ========== -->
+<h2 id="s6"><span class="n">6</span>檢索升級：粗方塊 → 精密參數化件</h2>
+<div class="q"><div class="who">使用者</div>2, 3　（① 隨身碟備份　② 檢索升級：把粗方塊機台換成精密參數化 CAD 件）</div>
+<p>點雲分群只給得出「有尺寸的方塊」。要更精細，正解是<b>檢索</b>——用一個精密參數化零件取代方塊，擺到偵測到的位置。示範把偵測到的<b>鑽床</b>換成一支完整的立式鑽床件。</p>
+<figure><img src="img/retrieval_ba.png" alt="鑽床 before/after">
+<figcaption><b>檢索前後：同一台鑽床。</b>左＝點雲重建的粗 primitive；右＝精密參數化檢索件（底座 T 槽、立柱、可調圓工作台＋夾把、頭部鑄件、馬達、皮帶罩、主軸套筒＋夾頭、三幅進給手輪、開關盒）。<span class="o">reconstruction 給位置與尺寸，retrieval 給細節</span>。</figcaption></figure>
+<div class="key"><b>可製造 B-Rep：</b>這支鑽床件也用 CadQuery 建成 B-Rep，<code>isValid()=True</code>、體積 0.022 m³，匯出 <code>drillpress.step</code>——直接送製造/模擬。這正是「把設計端（MCL39）建好驗過的精密件，擺進真實掃描空間（x5-roomtour）」的作法。</div>
+
+<!-- ========== 7 逐字稿 ========== -->
+<h2 id="s7"><span class="n">7</span>對話逐字稿</h2>
+<p>本專案的完整對話往來（使用者訊息原文＋每一輪的處理）：</p>
+<div class="q"><div class="who">使用者 · 提問</div>我們目前有教室的 3DGS 以及 3D 建模軟體，是否有辦法分析 3DGS 中的物件、空間尺寸，然後再自動透過 3D 建模軟體將空間自動重繪呢？</div>
+<p class="mut">→ 回覆：可行，且已完成約 7 成；盤點既有工具、講明能與不能、提出四階段管線，並提議先做方塊模型跑通閉環再挑件升級。</p>
+<div class="q"><div class="who">使用者 · 開工</div>請開工，把已知的進行 cad 建模，同時如果建模後發現其他物件也可以進行建模，則也將新的物件自動進行建模繪製。另外加入流程，嘗試讓 VLM 進行物件分析並測量物件，看看是否能增加可繪製的物件數量。</div>
+<p class="mut">→ 處理：解碼點雲 → 分析已知+量高度 → 幾何發掘 +6 件 → VLM 分析 +5 件 → OpenSCAD/Blender 生成 → 疊回點雲驗證。物件 8→21 件。做了首版記錄頁。</p>
+<div class="q"><div class="who">使用者 · 精修</div>你接著做，後續我有五個小時的時間需要去執行其他專案，你的目標就是把它修正到細緻。</div>
+<p class="mut">→ 處理：R1 細緻家具庫、R2 建築細節、R3 三引擎+STEP、R4 L1/L3 驗證+自動修正、R5 轉盤+對照、R6 記錄頁+全流程重跑。每項自我驗證，11 秒可重現。</p>
+<div class="q"><div class="who">使用者 · 續做</div>2, 3</div>
+<p class="mut">→ 處理：② 進 KINGSTON 隨身碟備份（gzip 驗證通過）；③ 檢索升級——精密立式鑽床件（OpenSCAD 細緻 + CadQuery B-Rep→STEP），before/after 對照，機台改金屬灰放回場景。</p>
+<div class="q"><div class="who">使用者 · 發布</div>完成後內容幫我上傳到 github，並用網頁檔紀錄完整的對話紀錄、查找資料、圖片等內容。可以公開的資料就傳到 page 上，並將連結提供給我。</div>
+<p class="mut">→ 處理：本頁即完整記錄；含人像的真實照已去識別化；程式碼推 GitHub、公開站掛 GitHub Pages（連結見下）。</p>
+
+<!-- ========== 8 圖片集 ========== -->
+<h2 id="s8"><span class="n">8</span>圖片集</h2>
+<div class="gal">
+<a href="img/cmp_real_cad.png"><img src="img/cmp_real_cad.png"><div class="cap">真實環景 vs 自動重繪</div></a>
+<a href="img/cad_openscad.png"><img src="img/cad_openscad.png"><div class="cap">OpenSCAD 細緻重繪</div></a>
+<a href="img/cad_blender.png"><img src="img/cad_blender.png"><div class="cap">Blender 網格</div></a>
+<a href="img/cmp_tri_engine.png"><img src="img/cmp_tri_engine.png"><div class="cap">三引擎並排</div></a>
+<a href="img/cad_prov.png"><img src="img/cad_prov.png"><div class="cap">來源上色（三階段貢獻）</div></a>
+<a href="img/retrieval_ba.png"><img src="img/retrieval_ba.png"><div class="cap">鑽床檢索前後</div></a>
+<a href="img/drillpress_hero.png"><img src="img/drillpress_hero.png"><div class="cap">精密鑽床單件</div></a>
+<a href="img/discover.png"><img src="img/discover.png"><div class="cap">幾何發掘除錯</div></a>
+<a href="img/clash.png"><img src="img/clash.png"><div class="cap">L3 裝配檢查</div></a>
+<a href="img/verify.png"><img src="img/verify.png"><div class="cap">疊回點雲驗證</div></a>
+<a href="img/vlm_seg.png"><img src="img/vlm_seg.png"><div class="cap">VLM 分析環景（去識別化）</div></a>
+<a href="img/turntable.gif"><img src="img/turntable.gif"><div class="cap">360° 轉盤</div></a>
+</div>
+
+<!-- ========== 9 成果 ========== -->
+<h2 id="s9"><span class="n">9</span>成果與檔案</h2>
+<p><span class="pill pg">L1·L3 通過</span><span class="pill pg">三引擎一致</span><span class="pill pg">11 秒可重現</span></p>
+<p>完整管線 <code>bash run_pipeline.sh</code> 一鍵到底：解碼 → 分析 → 發掘 → VLM → 三引擎生成 → L1/L3 驗證+自動修正 → 檢索精修 → 記錄頁。</p>
+<table>
+<tr><th>檔案</th><th>說明</th></tr>
+<tr><td><a href="files/room.scad">room.scad</a></td><td>OpenSCAD 參數化房間（可開啟改參）</td></tr>
+<tr><td><a href="files/furniture_lib.scad">furniture_lib.scad</a></td><td>細緻家具模組庫</td></tr>
+<tr><td><a href="files/build_blender.py">build_blender.py</a></td><td>Blender bpy 腳本</td></tr>
+<tr><td><a href="files/room.step">room.step</a></td><td>整間房 B-Rep（可製造，18 實體全 isValid）</td></tr>
+<tr><td><a href="files/drillpress.step">drillpress.step</a></td><td>精密鑽床檢索件 B-Rep（isValid，0.022 m³）</td></tr>
+<tr><td><a href="scan2cad.html">scan2cad.html</a></td><td>技術總覽頁（含物件清單與驗證數據）</td></tr>
+</table>
+<div class="warn"><b>資料與隱私說明：</b>本頁的真實工坊環景照已做<b>去識別化模糊</b>處理，以保護入鏡的工作人員。CAD 重繪、圖表、驗證結果為系統自動產生，可自由取用。尺寸為 3DGS 管長標定＋點雲量測（±10%）。</div>
+
+<div class="foot">
+scan2cad · 3DGS→CAD 自動重繪 · 串接 x5-roomtour（空間掃描）+ MCL39（建模驗證）<br>
+本頁為開發全記錄（緣起／可行性／資料查找／建置／精修／檢索／逐字稿）。原始碼：<a href="https://github.com/henrychao521/scan2cad">github.com/henrychao521/scan2cad</a>
+</div>
+</main></div></body></html>

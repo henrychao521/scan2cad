@@ -1,0 +1,16 @@
+{
+ "L1_健康": {
+  "pass": true,
+  "shell_valid": true,
+  "furniture_valid": 16,
+  "invalid": []
+ },
+ "L3_裝配": {
+  "pass": true,
+  "clash_pairs": [],
+  "out_of_room": [],
+  "clash_tol_frac": 0.06,
+  "room_tol_m": 0.05
+ },
+ "summary": "L1 ✓ · L3 ✓ (0 穿插, 0 出界)"
+}
