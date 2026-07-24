@@ -13,3 +13,8 @@ page/
 work/real_pano.png
 work/real_splat.png
 work/pano_seg*.png
+
+# gs2mesh 實驗：原始碼(.py/.md/.sh/.json)進版控，大檔輸出忽略
+gs2mesh/*.zip
+gs2mesh/*.obj
+gs2mesh/*.ply
